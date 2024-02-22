@@ -16,3 +16,8 @@ Add in i3blocks config as follows:
 	command=ofono-blocklet
 	interval=persist
 	format=json
+
+LIMITATIONS:
+
+The assumption is that there is only one modem in the system
+
