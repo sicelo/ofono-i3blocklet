@@ -1,0 +1,18 @@
+ofono blocklet for i3blocks
+
+TODO:
+
+- add error handling
+ - cleanup the code
+
+BUILDING:
+
+	gcc -o ofono-blocklet ofono-blocklet.c -lell
+
+USAGE:
+Add in i3blocks config as follows:
+
+	[cellular]
+	command=ofono-blocklet
+	interval=persist
+	format=json
