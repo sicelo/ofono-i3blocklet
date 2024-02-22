@@ -194,15 +194,18 @@ static void get_netreg_cb(struct l_dbus_message *message, void *user_data)
 
 static void get_context_cb(struct l_dbus_message *message, void *user_data)
 {
-	const char *signature, *key;
-	struct l_dbus_message_iter dict, iter;
+	const char *signature, *key, *ctx;
+	struct l_dbus_message_iter dict, iter, array;
 	struct ofono_modem *modem = user_data;
 	bool active;
 
 	signature = l_dbus_message_get_signature(message);
-	if (strcmp(signature, "a{sv}") != 0)
+	if (strcmp(signature, "a(oa{sv})") != 0)
 		return;
-	l_dbus_message_get_arguments(message, "a{sv}", &dict);
+	l_dbus_message_get_arguments(message, "a(oa{sv})", &array);
+
+	/* We will take the first context */
+	l_dbus_message_iter_next_entry(&array, &ctx, &dict);
 
 	/* We only care about Active */
 	while (l_dbus_message_iter_next_entry(&dict, &key, &iter)){
@@ -312,10 +315,8 @@ static void get_modems_cb(struct l_dbus_message *message, void *user_data)
 		l_dbus_send_with_reply(dbus, nr_msg, get_netreg_cb, modem, NULL);
 	}
 	if (modem->has_connman) {
-		char ctx_obj[128];
-		snprintf(ctx_obj, 128, "%s%s", modem->path, "/context1");
-		ctx_msg = l_dbus_message_new_method_call(dbus, "org.ofono", ctx_obj,
-				"org.ofono.ConnectionContext", "GetProperties");
+		ctx_msg = l_dbus_message_new_method_call(dbus, "org.ofono", modem->path,
+				"org.ofono.ConnectionManager", "GetContexts");
 		l_dbus_message_set_arguments(ctx_msg, "");
 		l_dbus_send_with_reply(dbus, ctx_msg, get_context_cb, modem, NULL);
 		/* l_free(ctx_obj); */
